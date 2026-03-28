@@ -12,14 +12,14 @@ const phaseNotes = {
     atp: 4,
     nadph: 0,
     oxygen: 0,
-    note: 'Electrons loop back to PSI and mainly boost ATP formation.',
+    note: 'Electrons cycle around PSI and mainly increase ATP synthesis.',
   },
   noncyclic: {
     title: 'Non-cyclic photophosphorylation',
     atp: 3,
     nadph: 2,
     oxygen: 1,
-    note: 'Water splitting feeds PSII and PSI, producing NADPH and oxygen.',
+    note: 'Water splitting supplies electrons and oxygen is released.',
   },
 };
 
@@ -40,17 +40,58 @@ function Metric({ label, value }) {
   );
 }
 
-function FlowDots({ count, className, labelPrefix }) {
+function ProcessStream({ count, className, baseMs, size = 12 }) {
   return (
-    <div className={`flow-dots ${className}`}>
+    <div className={`process-stream ${className}`}>
       {Array.from({ length: count }).map((_, index) => (
-        <span key={`${labelPrefix}-${index}`} />
+        <span
+          key={`${className}-${index}`}
+          style={{
+            animationDuration: `${baseMs}ms`,
+            animationDelay: `${index * 180}ms`,
+            width: `${size}px`,
+            height: `${size}px`,
+          }}
+        />
       ))}
     </div>
   );
 }
 
-function PlantScene({
+function ChloroplastTrack({ activity, mode }) {
+  const sparks = Math.max(3, Math.round(activity / 18));
+
+  return (
+    <div className={`chloroplast-track mode-${mode}`}>
+      <div className="thylakoid-stack left">
+        <span />
+        <span />
+        <span />
+      </div>
+      <div className="thylakoid-stack right">
+        <span />
+        <span />
+        <span />
+      </div>
+      <div className="electron-lane upper" />
+      <div className={`electron-lane lower ${mode === 'cyclic' ? 'cyclic' : ''}`} />
+      <div className="chloroplast-sparks">
+        {Array.from({ length: sparks }).map((_, index) => (
+          <span
+            key={`spark-${index}`}
+            style={{
+              animationDuration: `${1200 + (100 - activity) * 10}ms`,
+              animationDelay: `${index * 140}ms`,
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ProcessScene({
+  mode = 'capture',
   sunlight = 60,
   water = 50,
   co2 = 40,
@@ -60,63 +101,79 @@ function PlantScene({
   caption,
   modeLabel,
 }) {
+  const lightMs = clamp(2400 - sunlight * 12, 800, 2200);
+  const waterMs = clamp(2600 - water * 12, 900, 2600);
+  const co2Ms = clamp(2500 - co2 * 10, 900, 2400);
+  const oxygenMs = clamp(2500 - oxygen * 12, 900, 2400);
+  const sugarMs = clamp(2600 - sugar * 12, 900, 2600);
+  const activity = clamp((sunlight + water + co2 + sugar) / 4, 15, 100);
+
   return (
     <div
-      className="scene-card"
+      className={`process-scene mode-${mode}`}
       style={{
-        '--scene-energy': `${0.35 + sunlight / 120}`,
-        '--leaf-scale': `${0.96 + leafTone / 400}`,
-        '--leaf-hue': `${leafTone / 7}deg`,
+        '--leaf-sat': `${0.8 + leafTone / 120}`,
+        '--leaf-bright': `${0.8 + leafTone / 220}`,
+        '--scene-activity': `${activity / 100}`,
       }}
     >
-      <div className="scene-sky" />
-      <div className="scene-rays">
-        <span />
-        <span />
-        <span />
-        <span />
-      </div>
-      <div className="scene-sun" style={{ opacity: 0.45 + sunlight / 180 }} />
-      <div className="scene-glow" />
-      <div className="chloroplast-energy">
-        <span />
-        <span />
-        <span />
-        <span />
-      </div>
-      <div className="leaf-breath leaf-breath-left" />
-      <div className="leaf-breath leaf-breath-right" />
+      <div className="scene-atmosphere" />
+      <div className="scene-sun-core" style={{ opacity: 0.35 + sunlight / 150 }} />
 
-      <FlowDots count={Math.max(3, Math.round(sunlight / 20))} className="sun-flow" labelPrefix="sun" />
-      <FlowDots count={Math.max(2, Math.round(co2 / 25))} className="co2-flow" labelPrefix="co2" />
-      <FlowDots count={Math.max(2, Math.round(water / 25))} className="water-flow" labelPrefix="water" />
-      <FlowDots count={Math.max(2, Math.round(oxygen / 25))} className="oxygen-flow" labelPrefix="oxygen" />
-      <FlowDots count={Math.max(2, Math.round(sugar / 20))} className="sugar-flow" labelPrefix="sugar" />
+      <ProcessStream
+        count={Math.max(3, Math.round(sunlight / 18))}
+        className="sunlight-stream"
+        baseMs={lightMs}
+        size={10}
+      />
+      <ProcessStream
+        count={Math.max(2, Math.round(co2 / 20))}
+        className="co2-stream"
+        baseMs={co2Ms}
+      />
+      <ProcessStream
+        count={Math.max(2, Math.round(water / 22))}
+        className="water-stream"
+        baseMs={waterMs}
+      />
+      <ProcessStream
+        count={Math.max(oxygen > 5 ? 2 : 1, Math.round(oxygen / 22))}
+        className="oxygen-stream"
+        baseMs={oxygenMs}
+      />
+      <ProcessStream
+        count={Math.max(sugar > 5 ? 2 : 1, Math.round(sugar / 22))}
+        className="sugar-stream"
+        baseMs={sugarMs}
+      />
 
-      <div className="scene-plant">
+      <div className="plant-scaffold">
         <div className="plant-stem" />
-        <div className="plant-leaf leaf-left" style={{ filter: `saturate(${0.7 + leafTone / 100})` }} />
-        <div className="plant-leaf leaf-right" style={{ filter: `saturate(${0.7 + leafTone / 100})` }} />
+        <div className="plant-leaf left" />
+        <div className="plant-leaf right" />
         <div className="leaf-vein left" />
         <div className="leaf-vein right" />
-        <div className="leaf-core left" />
-        <div className="leaf-core right" />
-        <div className="scene-roots">
+        <div className="leaf-window left">
+          <ChloroplastTrack activity={activity} mode={mode === 'light' ? 'noncyclic' : mode === 'cyclic' ? 'cyclic' : 'calvin'} />
+        </div>
+        <div className="leaf-window right">
+          <ChloroplastTrack activity={activity} mode={mode === 'light' ? 'noncyclic' : mode === 'cyclic' ? 'cyclic' : 'calvin'} />
+        </div>
+        <div className="root-web">
+          <span />
           <span />
           <span />
           <span />
         </div>
       </div>
 
-      <div className="soil-band" />
+      <div className="scene-tag top">Sunlight</div>
+      <div className="scene-tag left">CO2</div>
+      <div className="scene-tag bottom">Water</div>
+      <div className="scene-tag right">Oxygen</div>
+      <div className="scene-tag sugar">Sugar</div>
 
-      <div className="scene-label scene-label-top">Sunlight</div>
-      <div className="scene-label scene-label-left">CO2 In</div>
-      <div className="scene-label scene-label-bottom">H2O Up</div>
-      <div className="scene-label scene-label-right">O2 Out</div>
-      <div className="scene-label scene-label-sugar">Sugar Out</div>
-
-      <div className="scene-caption">
+      <div className="scene-readout">
         <strong>{modeLabel}</strong>
         <p>{caption}</p>
       </div>
@@ -154,22 +211,23 @@ function SiteExplorer() {
   const [pigment, setPigment] = useState('Chlorophyll a');
   const [zoom, setZoom] = useState(65);
   const bars = pigmentBands[pigment];
-  const leafTone = 55 + zoom / 3;
+  const leafTone = 50 + zoom / 2.8;
 
   return (
     <SceneScaffold
       title={pigment}
-      subtitle="The leaf scene shows how the chloroplast-rich part of the plant becomes more active as pigment capture improves."
+      subtitle="Pigment choice changes absorption bands, and the chloroplast lanes inside the leaf respond in sync."
       scene={
-        <PlantScene
+        <ProcessScene
+          mode="capture"
           sunlight={bars[0]}
-          water={55}
-          co2={40}
-          oxygen={30}
-          sugar={45}
+          water={42}
+          co2={32}
+          oxygen={24}
+          sugar={30}
           leafTone={leafTone}
-          modeLabel="Leaf capture"
-          caption={`${pigment} is currently emphasized, so absorption changes across visible light bands.`}
+          modeLabel="Pigment capture"
+          caption={`${pigment} is emphasized, so the absorption profile and chloroplast activity shift together.`}
         />
       }
       controls={
@@ -215,7 +273,7 @@ function SiteExplorer() {
       metrics={[
         <Metric key="absorb" label="Peak absorbance" value={formatPercent(Math.max(...bars))} />,
         <Metric key="zoom" label="Zoom" value={`${zoom}%`} />,
-        <Metric key="focus" label="Leaf activity" value={leafTone > 80 ? 'High' : 'Moderate'} />,
+        <Metric key="focus" label="Leaf activity" value={leafTone > 78 ? 'High' : 'Moderate'} />,
       ]}
     />
   );
@@ -230,15 +288,16 @@ function LightReactionSimulator() {
   return (
     <SceneScaffold
       title={phase.title}
-      subtitle="Watch light energy strike the leaf, water move upward from the roots, and oxygen leave the plant."
+      subtitle="Photon intensity now synchronizes sunlight arrival, thylakoid electron flow, water splitting, and oxygen release."
       scene={
-        <PlantScene
+        <ProcessScene
+          mode={pathway === 'cyclic' ? 'cyclic' : 'light'}
           sunlight={intensity}
-          water={pathway === 'noncyclic' ? 80 : 55}
-          co2={22}
-          oxygen={phase.oxygen * 55 * scale}
-          sugar={18}
-          leafTone={65 + intensity / 4}
+          water={pathway === 'noncyclic' ? 82 : 48}
+          co2={16}
+          oxygen={phase.oxygen * 58 * scale}
+          sugar={12}
+          leafTone={60 + intensity / 4}
           modeLabel={phase.title}
           caption={phase.note}
         />
@@ -287,17 +346,18 @@ function CalvinCycleStudio() {
   return (
     <SceneScaffold
       title="Calvin cycle"
-      subtitle="The dark reaction scene highlights carbon entering the leaf and sugar leaving after energy-rich molecules feed the cycle."
+      subtitle="Carbon intake and sugar export now strengthen or slow together, based on ATP and NADPH availability."
       scene={
-        <PlantScene
-          sunlight={25}
-          water={45}
-          co2={co2 * 7}
-          oxygen={20}
-          sugar={g3p * 22}
-          leafTone={60 + g3p * 10}
+        <ProcessScene
+          mode="calvin"
+          sunlight={18}
+          water={36}
+          co2={co2 * 8}
+          oxygen={10}
+          sugar={g3p * 24}
+          leafTone={58 + g3p * 10}
           modeLabel="Carbon fixation"
-          caption={`With ${co2} CO2, ${nadph} NADPH, and ${atp} ATP, the cycle currently nets ${g3p} G3P.`}
+          caption={`With ${co2} CO2, ${nadph} NADPH, and ${atp} ATP, the cycle nets ${g3p} G3P.`}
         />
       }
       controls={
@@ -335,17 +395,18 @@ function PathwayComparator() {
   return (
     <SceneScaffold
       title={mode === 'c4' ? 'C4 pathway' : 'C3 pathway'}
-      subtitle="The plant scene changes how efficiently the leaf seems to process carbon under different temperature conditions."
+      subtitle="Temperature changes now affect the carbon stream and sugar export together, rather than a generic loop."
       scene={
-        <PlantScene
-          sunlight={58}
-          water={mode === 'c4' ? 62 : 46}
-          co2={mode === 'c4' ? 68 : 42}
-          oxygen={mode === 'c4' ? 24 : 42}
-          sugar={chosen * 0.7}
-          leafTone={50 + chosen / 2}
+        <ProcessScene
+          mode={mode}
+          sunlight={56}
+          water={mode === 'c4' ? 60 : 42}
+          co2={mode === 'c4' ? 72 : 44}
+          oxygen={mode === 'c4' ? 20 : 38}
+          sugar={chosen * 0.72}
+          leafTone={46 + chosen / 2}
           modeLabel={mode.toUpperCase()}
-          caption={`At ${temperature} deg C, the selected pathway is working at about ${formatPercent(chosen)} efficiency.`}
+          caption={`At ${temperature} deg C, the selected pathway is operating at about ${formatPercent(chosen)} efficiency.`}
         />
       }
       controls={
@@ -404,9 +465,10 @@ function LimitingFactorLab() {
   return (
     <SceneScaffold
       title="Limiting factors"
-      subtitle="The scene visualizes plant health and gas exchange while the weakest input becomes the bottleneck."
+      subtitle="The slowest input now literally slows the scene, so visual motion and process strength stay aligned."
       scene={
-        <PlantScene
+        <ProcessScene
+          mode="whole"
           sunlight={light}
           water={water}
           co2={co2}
@@ -414,7 +476,7 @@ function LimitingFactorLab() {
           sugar={output * 0.55}
           leafTone={output}
           modeLabel="Whole plant response"
-          caption={`${limitingFactor.name} is currently the main limiting factor, so visible plant output stays constrained.`}
+          caption={`${limitingFactor.name} is the limiting factor, so all visible process motion is held back by it.`}
         />
       }
       controls={
@@ -474,8 +536,8 @@ export default function PhotosynthesisLab({ chapter, topic }) {
           <p className="eyebrow">Chapter 12 Interactive Lab</p>
           <h2>{topic.title}</h2>
           <p>
-            The plant is now part of the simulator itself, so light capture, water flow,
-            gas exchange, and sugar output are visible while you adjust the topic controls.
+            This version removes generic motion and uses synchronized process flow, so the
+            visible animation changes when the biology changes.
           </p>
         </div>
         <div className="visualizer-badge">
@@ -507,10 +569,7 @@ export default function PhotosynthesisLab({ chapter, topic }) {
             <h3>Photosynthesis map</h3>
             <ol className="chapter-path">
               {chapter.topics.map((chapterTopic) => (
-                <li
-                  key={chapterTopic.id}
-                  className={chapterTopic.id === topic.id ? 'is-active' : ''}
-                >
+                <li key={chapterTopic.id} className={chapterTopic.id === topic.id ? 'is-active' : ''}>
                   <strong>{chapterTopic.title}</strong>
                   <span>{chapterTopic.visualizer}</span>
                 </li>
