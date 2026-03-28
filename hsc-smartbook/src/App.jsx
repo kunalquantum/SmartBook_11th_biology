@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Sidebar, Topbar } from './components/layout';
-import { HomeScreen, UnitPage } from './features';
-import { biologyUnits, syllabusStats } from './data/units';
+import { UnitPage } from './features';
+import { biologyUnits } from './data/units';
 
 function getDefaultSelection() {
   const firstUnit = biologyUnits[0];
@@ -28,14 +28,20 @@ function findTopic(chapter, topicId) {
 }
 
 export default function App() {
-  const [activeScreen, setActiveScreen] = useState('home');
   const [selection, setSelection] = useState(getDefaultSelection);
+  const [expandedChapterId, setExpandedChapterId] = useState(selection.chapterId);
 
-  const activeUnit = findUnit(selection.unitId);
-  const activeChapter = findChapter(activeUnit, selection.chapterId);
-  const activeTopic = findTopic(activeChapter, selection.topicId);
+  const activeUnit = useMemo(() => findUnit(selection.unitId), [selection.unitId]);
+  const activeChapter = useMemo(
+    () => findChapter(activeUnit, selection.chapterId),
+    [activeUnit, selection.chapterId],
+  );
+  const activeTopic = useMemo(
+    () => findTopic(activeChapter, selection.topicId),
+    [activeChapter, selection.topicId],
+  );
 
-  function openUnit(unitId) {
+  function selectUnit(unitId) {
     const nextUnit = findUnit(unitId);
     const nextChapter = nextUnit.chapters[0];
     const nextTopic = nextChapter.topics[0];
@@ -45,10 +51,12 @@ export default function App() {
       chapterId: nextChapter.id,
       topicId: nextTopic.id,
     });
-    setActiveScreen('unit');
+    setExpandedChapterId(nextChapter.id);
   }
 
-  function selectChapter(chapterId) {
+  function toggleChapter(chapterId) {
+    setExpandedChapterId((current) => (current === chapterId ? '' : chapterId));
+
     const nextChapter = findChapter(activeUnit, chapterId);
     const nextTopic = nextChapter.topics[0];
 
@@ -60,51 +68,30 @@ export default function App() {
   }
 
   function selectTopic(chapterId, topicId) {
+    setExpandedChapterId(chapterId);
     setSelection((current) => ({
       ...current,
       chapterId,
       topicId,
     }));
-    setActiveScreen('unit');
   }
 
   return (
-    <div className="smartbook-shell">
+    <div className="smartbook-shell simple-shell">
       <Sidebar
         units={biologyUnits}
-        activeScreen={activeScreen}
         activeUnitId={activeUnit.id}
-        onHome={() => setActiveScreen('home')}
-        onOpenUnit={openUnit}
+        activeChapterId={activeChapter.id}
+        activeTopicId={activeTopic.id}
+        expandedChapterId={expandedChapterId}
+        onSelectUnit={selectUnit}
+        onToggleChapter={toggleChapter}
+        onSelectTopic={selectTopic}
       />
 
-      <div className="content-shell">
-        <Topbar
-          activeScreen={activeScreen}
-          activeUnit={activeUnit}
-          activeChapter={activeChapter}
-          activeTopic={activeTopic}
-          onOpenHome={() => setActiveScreen('home')}
-        />
-
-        {activeScreen === 'home' ? (
-          <HomeScreen
-            units={biologyUnits}
-            syllabusStats={syllabusStats}
-            onOpenUnit={openUnit}
-            onResume={() => setActiveScreen('unit')}
-            activeUnit={activeUnit}
-            activeTopic={activeTopic}
-          />
-        ) : (
-          <UnitPage
-            unit={activeUnit}
-            chapter={activeChapter}
-            topic={activeTopic}
-            onSelectChapter={selectChapter}
-            onSelectTopic={selectTopic}
-          />
-        )}
+      <div className="content-shell simple-content-shell">
+        <Topbar activeUnit={activeUnit} activeChapter={activeChapter} activeTopic={activeTopic} />
+        <UnitPage unit={activeUnit} chapter={activeChapter} topic={activeTopic} />
       </div>
     </div>
   );
