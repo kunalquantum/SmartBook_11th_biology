@@ -61,9 +61,31 @@ function PlantScene({
   modeLabel,
 }) {
   return (
-    <div className="scene-card">
+    <div
+      className="scene-card"
+      style={{
+        '--scene-energy': `${0.35 + sunlight / 120}`,
+        '--leaf-scale': `${0.96 + leafTone / 400}`,
+        '--leaf-hue': `${leafTone / 7}deg`,
+      }}
+    >
       <div className="scene-sky" />
+      <div className="scene-rays">
+        <span />
+        <span />
+        <span />
+        <span />
+      </div>
       <div className="scene-sun" style={{ opacity: 0.45 + sunlight / 180 }} />
+      <div className="scene-glow" />
+      <div className="chloroplast-energy">
+        <span />
+        <span />
+        <span />
+        <span />
+      </div>
+      <div className="leaf-breath leaf-breath-left" />
+      <div className="leaf-breath leaf-breath-right" />
 
       <FlowDots count={Math.max(3, Math.round(sunlight / 20))} className="sun-flow" labelPrefix="sun" />
       <FlowDots count={Math.max(2, Math.round(co2 / 25))} className="co2-flow" labelPrefix="co2" />
@@ -77,12 +99,16 @@ function PlantScene({
         <div className="plant-leaf leaf-right" style={{ filter: `saturate(${0.7 + leafTone / 100})` }} />
         <div className="leaf-vein left" />
         <div className="leaf-vein right" />
+        <div className="leaf-core left" />
+        <div className="leaf-core right" />
         <div className="scene-roots">
           <span />
           <span />
           <span />
         </div>
       </div>
+
+      <div className="soil-band" />
 
       <div className="scene-label scene-label-top">Sunlight</div>
       <div className="scene-label scene-label-left">CO2 In</div>
