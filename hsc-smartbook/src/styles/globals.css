@@ -255,6 +255,17 @@ button {
   align-items: start;
 }
 
+.single-scene-layout {
+  display: grid;
+  gap: 14px;
+}
+
+.support-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
 .photosynthesis-panel {
   padding: 18px;
   background: linear-gradient(180deg, #f8fcfa 0%, #ffffff 100%);
@@ -293,6 +304,7 @@ button {
 
 .scene-card {
   position: relative;
+  width: 100%;
   min-height: 340px;
   overflow: hidden;
   border-radius: 22px;
@@ -709,6 +721,10 @@ button {
 
   .photosynthesis-layout,
   .lab-scaffold {
+    grid-template-columns: 1fr;
+  }
+
+  .support-grid {
     grid-template-columns: 1fr;
   }
 }

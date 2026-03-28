@@ -458,38 +458,40 @@ export default function PhotosynthesisLab({ chapter, topic }) {
         </div>
       </article>
 
-      <div className="visualizer-grid photosynthesis-layout scene-layout">
-        <article className="panel-card">
-          <p className="eyebrow">Topic Scope</p>
-          <h3>{topic.title}</h3>
-          <ul className="plain-list">
-            {topic.subtopics.map((subtopic) => (
-              <li key={subtopic}>{subtopic}</li>
-            ))}
-          </ul>
-        </article>
-
+      <div className="visualizer-grid single-scene-layout">
         <article className="panel-card photosynthesis-panel">
           <p className="eyebrow">Interactive Module</p>
           <h3>{topic.visualizer}</h3>
           <TopicSpecificPanel topicId={topic.id} />
         </article>
 
-        <article className="panel-card accent-card">
-          <p className="eyebrow">Chapter Flow</p>
-          <h3>Photosynthesis map</h3>
-          <ol className="chapter-path">
-            {chapter.topics.map((chapterTopic) => (
-              <li
-                key={chapterTopic.id}
-                className={chapterTopic.id === topic.id ? 'is-active' : ''}
-              >
-                <strong>{chapterTopic.title}</strong>
-                <span>{chapterTopic.visualizer}</span>
-              </li>
-            ))}
-          </ol>
-        </article>
+        <div className="support-grid">
+          <article className="panel-card">
+            <p className="eyebrow">Topic Scope</p>
+            <h3>{topic.title}</h3>
+            <ul className="plain-list">
+              {topic.subtopics.map((subtopic) => (
+                <li key={subtopic}>{subtopic}</li>
+              ))}
+            </ul>
+          </article>
+
+          <article className="panel-card accent-card">
+            <p className="eyebrow">Chapter Flow</p>
+            <h3>Photosynthesis map</h3>
+            <ol className="chapter-path">
+              {chapter.topics.map((chapterTopic) => (
+                <li
+                  key={chapterTopic.id}
+                  className={chapterTopic.id === topic.id ? 'is-active' : ''}
+                >
+                  <strong>{chapterTopic.title}</strong>
+                  <span>{chapterTopic.visualizer}</span>
+                </li>
+              ))}
+            </ol>
+          </article>
+        </div>
       </div>
     </section>
   );
