@@ -1,4 +1,5 @@
 import PhotosynthesisLab from './unit4-plant-physiology/PhotosynthesisLab';
+import RespirationLab from './unit4-plant-physiology/RespirationLab';
 
 function createLearningPrompts(topic) {
   return [
@@ -40,9 +41,12 @@ function TopicVisualizer({ topic }) {
 
 export default function UnitPage({ chapter, topic }) {
   const isPhotosynthesisChapter = chapter.id === 'photosynthesis';
+  const isRespirationChapter = chapter.id === 'respiration-and-energy-transfer';
 
   return isPhotosynthesisChapter ? (
     <PhotosynthesisLab chapter={chapter} topic={topic} />
+  ) : isRespirationChapter ? (
+    <RespirationLab chapter={chapter} topic={topic} />
   ) : (
     <TopicVisualizer topic={topic} />
   );
