@@ -28,15 +28,7 @@ function ChapterRail({ unit, activeChapterId, onSelectChapter }) {
 
 function TopicBrowser({ chapter, activeTopicId, onSelectTopic }) {
   return (
-    <section className="topic-browser">
-      <div className="section-heading compact">
-        <div>
-          <p className="eyebrow">Topics</p>
-          <h2>{chapter.title}</h2>
-        </div>
-        <p>{chapter.description}</p>
-      </div>
-
+    <section className="topic-browser embedded">
       <div className="topic-browser-grid">
         {chapter.topics.map((topic, index) => (
           <button
@@ -59,7 +51,7 @@ function TopicVisualizer({ unit, chapter, topic }) {
 
   return (
     <section className="visualizer-shell">
-      <article className="visualizer-hero">
+      <article className="visualizer-hero compact-visualizer">
         <div>
           <p className="eyebrow">{unit.title}</p>
           <h2>{topic.title}</h2>
@@ -71,10 +63,10 @@ function TopicVisualizer({ unit, chapter, topic }) {
         </div>
       </article>
 
-      <div className="visualizer-grid">
+      <div className="visualizer-grid generic-visualizer-grid">
         <article className="panel-card">
           <p className="eyebrow">Subtopics</p>
-          <h3>What this visualizer should cover</h3>
+          <h3>What to cover</h3>
           <ul className="plain-list">
             {topic.subtopics.map((subtopic) => (
               <li key={subtopic}>{subtopic}</li>
@@ -83,26 +75,13 @@ function TopicVisualizer({ unit, chapter, topic }) {
         </article>
 
         <article className="panel-card">
-          <p className="eyebrow">Interaction Plan</p>
-          <h3>Generic experience blueprint</h3>
+          <p className="eyebrow">Interaction</p>
+          <h3>How it should feel</h3>
           <ul className="plain-list">
             {learningPrompts.map((prompt) => (
               <li key={prompt}>{prompt}</li>
             ))}
           </ul>
-        </article>
-
-        <article className="panel-card accent-card">
-          <p className="eyebrow">Build Prompt</p>
-          <h3>Next simulator target</h3>
-          <p className="callout-copy">
-            Build a focused interactive module for <strong>{topic.title}</strong> that teaches:
-          </p>
-          <div className="subtopic-pills">
-            {topic.subtopics.map((subtopic) => (
-              <span key={subtopic}>{subtopic}</span>
-            ))}
-          </div>
         </article>
       </div>
     </section>
@@ -120,7 +99,7 @@ export default function UnitPage({
 
   return (
     <main className="page-shell">
-      <section className="unit-banner">
+      <section className="unit-banner compact-banner">
         <div>
           <p className="eyebrow">{unit.id}</p>
           <h2>{unit.title}</h2>
@@ -132,23 +111,37 @@ export default function UnitPage({
         </div>
       </section>
 
-      <ChapterRail
-        unit={unit}
-        activeChapterId={chapter.id}
-        onSelectChapter={onSelectChapter}
-      />
+      <section className="study-layout">
+        <aside className="study-nav">
+          <div className="section-heading compact">
+            <div>
+              <p className="eyebrow">Navigator</p>
+              <h2>{chapter.title}</h2>
+            </div>
+            <p>{chapter.description}</p>
+          </div>
 
-      <TopicBrowser
-        chapter={chapter}
-        activeTopicId={topic.id}
-        onSelectTopic={onSelectTopic}
-      />
+          <ChapterRail
+            unit={unit}
+            activeChapterId={chapter.id}
+            onSelectChapter={onSelectChapter}
+          />
 
-      {isPhotosynthesisChapter ? (
-        <PhotosynthesisLab chapter={chapter} topic={topic} />
-      ) : (
-        <TopicVisualizer unit={unit} chapter={chapter} topic={topic} />
-      )}
+          <TopicBrowser
+            chapter={chapter}
+            activeTopicId={topic.id}
+            onSelectTopic={onSelectTopic}
+          />
+        </aside>
+
+        <div className="study-content">
+          {isPhotosynthesisChapter ? (
+            <PhotosynthesisLab chapter={chapter} topic={topic} />
+          ) : (
+            <TopicVisualizer unit={unit} chapter={chapter} topic={topic} />
+          )}
+        </div>
+      </section>
     </main>
   );
 }

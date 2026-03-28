@@ -74,10 +74,8 @@ export default function App() {
         units={biologyUnits}
         activeScreen={activeScreen}
         activeUnitId={activeUnit.id}
-        activeChapterId={activeChapter.id}
         onHome={() => setActiveScreen('home')}
         onOpenUnit={openUnit}
-        onSelectChapter={selectChapter}
       />
 
       <div className="content-shell">

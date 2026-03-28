@@ -2,17 +2,15 @@ export default function Sidebar({
   units,
   activeScreen,
   activeUnitId,
-  activeChapterId,
   onHome,
   onOpenUnit,
-  onSelectChapter,
 }) {
   return (
     <aside className="sidebar">
       <button className={`nav-home ${activeScreen === 'home' ? 'is-active' : ''}`} onClick={onHome}>
         <span className="nav-kicker">SmartBook</span>
         <strong>Biology 11th</strong>
-        <small>Interactive textbook structure</small>
+        <small>Clean chapter navigation</small>
       </button>
 
       <div className="sidebar-group">
@@ -28,22 +26,8 @@ export default function Sidebar({
               >
                 <span>{unit.id}</span>
                 <strong>{unit.title}</strong>
+                <small>{unit.chapters.length} chapters</small>
               </button>
-
-              {isUnitActive ? (
-                <div className="sidebar-chapters">
-                  {unit.chapters.map((chapter) => (
-                    <button
-                      key={chapter.id}
-                      className={`sidebar-chapter-button ${chapter.id === activeChapterId ? 'is-active' : ''}`}
-                      onClick={() => onSelectChapter(chapter.id)}
-                    >
-                      <span>{chapter.number}</span>
-                      <strong>{chapter.title}</strong>
-                    </button>
-                  ))}
-                </div>
-              ) : null}
             </div>
           );
         })}

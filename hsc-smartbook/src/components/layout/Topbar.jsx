@@ -7,14 +7,14 @@ export default function Topbar({
 }) {
   const crumb =
     activeScreen === 'home'
-      ? 'Browse the syllabus, jump into a unit, or continue where we left off.'
-      : `${activeUnit.title} / Chapter ${activeChapter.number} / ${activeTopic.title}`;
+      ? 'Pick a unit and continue from the last selected topic.'
+      : `Chapter ${activeChapter.number} / ${activeTopic.title}`;
 
   return (
     <header className="topbar">
       <div>
-        <p className="eyebrow">Book Navigation</p>
-        <h1>{activeScreen === 'home' ? 'SmartBook Dashboard' : activeTopic.title}</h1>
+        <p className="eyebrow">{activeScreen === 'home' ? 'Dashboard' : activeUnit.title}</p>
+        <h1>{activeScreen === 'home' ? 'SmartBook Biology' : activeTopic.title}</h1>
         <p className="topbar-copy">{crumb}</p>
       </div>
 
@@ -25,8 +25,8 @@ export default function Topbar({
           </button>
         ) : null}
         <div className="topbar-pill">
-          <span>Current Unit</span>
-          <strong>{activeUnit.id}</strong>
+          <span>Current</span>
+          <strong>{activeScreen === 'home' ? activeUnit.id : `Ch ${activeChapter.number}`}</strong>
         </div>
       </div>
     </header>
