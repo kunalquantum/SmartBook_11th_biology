@@ -393,6 +393,10 @@ button {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.photosynthesis-layout {
+  grid-template-columns: 280px minmax(0, 1.3fr) 280px;
+}
+
 .panel-card {
   padding: 22px;
 }
@@ -433,6 +437,239 @@ button {
   background: rgba(255, 255, 255, 0.14);
 }
 
+.photosynthesis-panel {
+  background:
+    radial-gradient(circle at top right, rgba(255, 181, 69, 0.16), transparent 22%),
+    linear-gradient(180deg, rgba(248, 253, 250, 0.96), rgba(255, 255, 255, 0.96));
+}
+
+.lab-stack {
+  display: grid;
+  gap: 18px;
+  margin-top: 16px;
+}
+
+.lab-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.chip-button {
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(20, 64, 52, 0.06);
+  color: var(--green-deep);
+}
+
+.chip-button.is-active {
+  background: linear-gradient(135deg, #146b56, #1d8e72);
+  color: white;
+}
+
+.chloroplast-card {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+}
+
+.chloroplast-visual {
+  display: grid;
+  place-items: center;
+  min-height: 260px;
+  transition: transform 180ms ease;
+}
+
+.chloroplast-shell {
+  position: relative;
+  width: 220px;
+  height: 140px;
+  border-radius: 999px;
+  background: linear-gradient(145deg, #b7f0af, #8fd78b);
+  box-shadow: inset 0 0 0 12px rgba(255, 255, 255, 0.26);
+}
+
+.granum {
+  position: absolute;
+  width: 58px;
+  height: 16px;
+  border-radius: 999px;
+  background: linear-gradient(145deg, #2f8e61, #195641);
+  box-shadow:
+    0 18px 0 rgba(47, 142, 97, 0.9),
+    0 36px 0 rgba(47, 142, 97, 0.78);
+}
+
+.granum-a {
+  top: 28px;
+  left: 30px;
+}
+
+.granum-b {
+  top: 24px;
+  left: 84px;
+}
+
+.granum-c {
+  top: 38px;
+  left: 138px;
+}
+
+.stroma {
+  position: absolute;
+  right: 18px;
+  bottom: 14px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.35);
+  font-weight: 700;
+  color: var(--green-deep);
+}
+
+.chloroplast-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.slider-field {
+  display: grid;
+  gap: 10px;
+}
+
+.slider-field span {
+  color: var(--copy);
+  font-weight: 600;
+}
+
+.slider-field input[type="range"] {
+  width: 100%;
+  accent-color: var(--green);
+}
+
+.spectrum-bars {
+  display: grid;
+  gap: 10px;
+}
+
+.spectrum-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+  color: var(--copy);
+}
+
+.spectrum-track {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(24, 53, 44, 0.08);
+  overflow: hidden;
+}
+
+.spectrum-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #1b8c70, #ffb545);
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.metric-tile {
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(20, 64, 52, 0.05);
+}
+
+.metric-tile span {
+  display: block;
+  color: var(--copy);
+}
+
+.metric-tile strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 1.3rem;
+  color: var(--green-deep);
+}
+
+.mini-note {
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: rgba(255, 181, 69, 0.12);
+}
+
+.mini-note p,
+.mini-note strong {
+  margin: 0;
+}
+
+.mini-note p {
+  margin-top: 8px;
+}
+
+.triple-sliders {
+  display: grid;
+  gap: 14px;
+}
+
+.comparison-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.compare-card {
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(20, 64, 52, 0.05);
+}
+
+.compare-card.is-active {
+  background: linear-gradient(145deg, rgba(224, 246, 238, 0.96), rgba(255, 255, 255, 0.96));
+  border: 1px solid rgba(24, 116, 92, 0.22);
+}
+
+.compare-card span,
+.compare-card small {
+  display: block;
+}
+
+.compare-card strong {
+  display: block;
+  margin: 6px 0;
+  font-size: 1.4rem;
+}
+
+.chapter-path {
+  display: grid;
+  gap: 12px;
+  margin: 16px 0 0;
+  padding-left: 18px;
+}
+
+.chapter-path li {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.chapter-path li.is-active {
+  color: white;
+}
+
+.chapter-path strong,
+.chapter-path span {
+  display: block;
+}
+
+.chapter-path span {
+  font-size: 0.84rem;
+  opacity: 0.8;
+}
+
 .eyebrow {
   margin: 0 0 10px;
   text-transform: uppercase;
@@ -468,8 +705,15 @@ button {
     flex-direction: column;
   }
 
+  .chloroplast-card {
+    grid-template-columns: 1fr;
+  }
+
   .stats-strip,
-  .visualizer-grid {
+  .visualizer-grid,
+  .metrics-grid,
+  .comparison-row,
+  .photosynthesis-layout {
     grid-template-columns: 1fr;
   }
 }

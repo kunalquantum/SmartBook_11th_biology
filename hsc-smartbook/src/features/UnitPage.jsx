@@ -1,3 +1,5 @@
+import PhotosynthesisLab from './unit4-plant-physiology/PhotosynthesisLab';
+
 function createLearningPrompts(topic) {
   return [
     `Explore ${topic.visualizer} as the main interactive frame for this topic.`,
@@ -114,6 +116,8 @@ export default function UnitPage({
   onSelectChapter,
   onSelectTopic,
 }) {
+  const isPhotosynthesisChapter = chapter.id === 'photosynthesis';
+
   return (
     <main className="page-shell">
       <section className="unit-banner">
@@ -140,7 +144,11 @@ export default function UnitPage({
         onSelectTopic={onSelectTopic}
       />
 
-      <TopicVisualizer unit={unit} chapter={chapter} topic={topic} />
+      {isPhotosynthesisChapter ? (
+        <PhotosynthesisLab chapter={chapter} topic={topic} />
+      ) : (
+        <TopicVisualizer unit={unit} chapter={chapter} topic={topic} />
+      )}
     </main>
   );
 }
