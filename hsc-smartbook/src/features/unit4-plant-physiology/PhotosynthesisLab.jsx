@@ -12,14 +12,14 @@ const phaseNotes = {
     atp: 4,
     nadph: 0,
     oxygen: 0,
-    note: 'Electrons return to PSI, boosting ATP but not reducing NADP.',
+    note: 'Electrons loop back to PSI and mainly boost ATP formation.',
   },
   noncyclic: {
     title: 'Non-cyclic photophosphorylation',
     atp: 3,
     nadph: 2,
     oxygen: 1,
-    note: 'PSII and PSI work together, splitting water and releasing oxygen.',
+    note: 'Water splitting feeds PSII and PSI, producing NADPH and oxygen.',
   },
 };
 
@@ -31,7 +31,7 @@ function formatPercent(value) {
   return `${Math.round(value)}%`;
 }
 
-function LightMeter({ label, value }) {
+function Metric({ label, value }) {
   return (
     <div className="metric-tile">
       <span>{label}</span>
@@ -40,42 +40,125 @@ function LightMeter({ label, value }) {
   );
 }
 
+function FlowDots({ count, className, labelPrefix }) {
+  return (
+    <div className={`flow-dots ${className}`}>
+      {Array.from({ length: count }).map((_, index) => (
+        <span key={`${labelPrefix}-${index}`} />
+      ))}
+    </div>
+  );
+}
+
+function PlantScene({
+  sunlight = 60,
+  water = 50,
+  co2 = 40,
+  oxygen = 30,
+  sugar = 20,
+  leafTone = 65,
+  caption,
+  modeLabel,
+}) {
+  return (
+    <div className="scene-card">
+      <div className="scene-sky" />
+      <div className="scene-sun" style={{ opacity: 0.45 + sunlight / 180 }} />
+
+      <FlowDots count={Math.max(3, Math.round(sunlight / 20))} className="sun-flow" labelPrefix="sun" />
+      <FlowDots count={Math.max(2, Math.round(co2 / 25))} className="co2-flow" labelPrefix="co2" />
+      <FlowDots count={Math.max(2, Math.round(water / 25))} className="water-flow" labelPrefix="water" />
+      <FlowDots count={Math.max(2, Math.round(oxygen / 25))} className="oxygen-flow" labelPrefix="oxygen" />
+      <FlowDots count={Math.max(2, Math.round(sugar / 20))} className="sugar-flow" labelPrefix="sugar" />
+
+      <div className="scene-plant">
+        <div className="plant-stem" />
+        <div className="plant-leaf leaf-left" style={{ filter: `saturate(${0.7 + leafTone / 100})` }} />
+        <div className="plant-leaf leaf-right" style={{ filter: `saturate(${0.7 + leafTone / 100})` }} />
+        <div className="leaf-vein left" />
+        <div className="leaf-vein right" />
+        <div className="scene-roots">
+          <span />
+          <span />
+          <span />
+        </div>
+      </div>
+
+      <div className="scene-label scene-label-top">Sunlight</div>
+      <div className="scene-label scene-label-left">CO2 In</div>
+      <div className="scene-label scene-label-bottom">H2O Up</div>
+      <div className="scene-label scene-label-right">O2 Out</div>
+      <div className="scene-label scene-label-sugar">Sugar Out</div>
+
+      <div className="scene-caption">
+        <strong>{modeLabel}</strong>
+        <p>{caption}</p>
+      </div>
+    </div>
+  );
+}
+
+function SceneScaffold({ title, subtitle, scene, controls, metrics }) {
+  return (
+    <div className="lab-scaffold">
+      <div className="lab-main">
+        <div className="lab-copy">
+          <p className="eyebrow">Visible Process</p>
+          <h3>{title}</h3>
+          <p>{subtitle}</p>
+        </div>
+        {scene}
+      </div>
+
+      <div className="lab-side">
+        <div className="lab-side-block">
+          <p className="eyebrow">Controls</p>
+          {controls}
+        </div>
+        <div className="lab-side-block">
+          <p className="eyebrow">Readout</p>
+          <div className="metrics-grid">{metrics}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function SiteExplorer() {
   const [pigment, setPigment] = useState('Chlorophyll a');
   const [zoom, setZoom] = useState(65);
   const bars = pigmentBands[pigment];
+  const leafTone = 55 + zoom / 3;
 
   return (
-    <div className="lab-stack">
-      <div className="lab-toolbar">
-        {Object.keys(pigmentBands).map((name) => (
-          <button
-            key={name}
-            className={`chip-button ${name === pigment ? 'is-active' : ''}`}
-            onClick={() => setPigment(name)}
-          >
-            {name}
-          </button>
-        ))}
-      </div>
-
-      <div className="chloroplast-card">
-        <div className="chloroplast-visual" style={{ transform: `scale(${0.8 + zoom / 200})` }}>
-          <div className="chloroplast-shell">
-            <div className="granum granum-a" />
-            <div className="granum granum-b" />
-            <div className="granum granum-c" />
-            <div className="stroma">Stroma</div>
+    <SceneScaffold
+      title={pigment}
+      subtitle="The leaf scene shows how the chloroplast-rich part of the plant becomes more active as pigment capture improves."
+      scene={
+        <PlantScene
+          sunlight={bars[0]}
+          water={55}
+          co2={40}
+          oxygen={30}
+          sugar={45}
+          leafTone={leafTone}
+          modeLabel="Leaf capture"
+          caption={`${pigment} is currently emphasized, so absorption changes across visible light bands.`}
+        />
+      }
+      controls={
+        <div className="lab-stack">
+          <div className="lab-toolbar">
+            {Object.keys(pigmentBands).map((name) => (
+              <button
+                key={name}
+                className={`chip-button ${name === pigment ? 'is-active' : ''}`}
+                onClick={() => setPigment(name)}
+              >
+                {name}
+              </button>
+            ))}
           </div>
-        </div>
-
-        <div className="chloroplast-panel">
-          <p className="eyebrow">Pigment Capture</p>
-          <h3>{pigment}</h3>
-          <p>
-            The active pigment changes how strongly different light bands are absorbed in
-            the chloroplast.
-          </p>
 
           <label className="slider-field">
             <span>Microscope zoom</span>
@@ -102,8 +185,13 @@ function SiteExplorer() {
             ))}
           </div>
         </div>
-      </div>
-    </div>
+      }
+      metrics={[
+        <Metric key="absorb" label="Peak absorbance" value={formatPercent(Math.max(...bars))} />,
+        <Metric key="zoom" label="Zoom" value={`${zoom}%`} />,
+        <Metric key="focus" label="Leaf activity" value={leafTone > 80 ? 'High' : 'Moderate'} />,
+      ]}
+    />
   );
 }
 
@@ -114,41 +202,53 @@ function LightReactionSimulator() {
   const scale = intensity / 100;
 
   return (
-    <div className="lab-stack">
-      <div className="lab-toolbar">
-        {Object.entries(phaseNotes).map(([key, value]) => (
-          <button
-            key={key}
-            className={`chip-button ${key === pathway ? 'is-active' : ''}`}
-            onClick={() => setPathway(key)}
-          >
-            {value.title}
-          </button>
-        ))}
-      </div>
-
-      <label className="slider-field">
-        <span>Photon intensity</span>
-        <input
-          type="range"
-          min="20"
-          max="100"
-          value={intensity}
-          onChange={(event) => setIntensity(Number(event.target.value))}
+    <SceneScaffold
+      title={phase.title}
+      subtitle="Watch light energy strike the leaf, water move upward from the roots, and oxygen leave the plant."
+      scene={
+        <PlantScene
+          sunlight={intensity}
+          water={pathway === 'noncyclic' ? 80 : 55}
+          co2={22}
+          oxygen={phase.oxygen * 55 * scale}
+          sugar={18}
+          leafTone={65 + intensity / 4}
+          modeLabel={phase.title}
+          caption={phase.note}
         />
-      </label>
+      }
+      controls={
+        <div className="lab-stack">
+          <div className="lab-toolbar">
+            {Object.entries(phaseNotes).map(([key, value]) => (
+              <button
+                key={key}
+                className={`chip-button ${key === pathway ? 'is-active' : ''}`}
+                onClick={() => setPathway(key)}
+              >
+                {value.title}
+              </button>
+            ))}
+          </div>
 
-      <div className="metrics-grid">
-        <LightMeter label="ATP" value={phase.atp * scale >= 1 ? (phase.atp * scale).toFixed(1) : 'Low'} />
-        <LightMeter label="NADPH" value={phase.nadph * scale >= 1 ? (phase.nadph * scale).toFixed(1) : 'Low'} />
-        <LightMeter label="Oxygen" value={phase.oxygen * scale >= 1 ? `${(phase.oxygen * scale).toFixed(1)} O2` : 'None'} />
-      </div>
-
-      <article className="mini-note">
-        <strong>{phase.title}</strong>
-        <p>{phase.note}</p>
-      </article>
-    </div>
+          <label className="slider-field">
+            <span>Photon intensity</span>
+            <input
+              type="range"
+              min="20"
+              max="100"
+              value={intensity}
+              onChange={(event) => setIntensity(Number(event.target.value))}
+            />
+          </label>
+        </div>
+      }
+      metrics={[
+        <Metric key="atp" label="ATP" value={phase.atp * scale >= 1 ? (phase.atp * scale).toFixed(1) : 'Low'} />,
+        <Metric key="nadph" label="NADPH" value={phase.nadph * scale >= 1 ? (phase.nadph * scale).toFixed(1) : 'Low'} />,
+        <Metric key="oxygen" label="Oxygen" value={phase.oxygen * scale >= 1 ? `${(phase.oxygen * scale).toFixed(1)} O2` : 'None'} />,
+      ]}
+    />
   );
 }
 
@@ -156,39 +256,46 @@ function CalvinCycleStudio() {
   const [co2, setCo2] = useState(6);
   const [nadph, setNadph] = useState(12);
   const [atp, setAtp] = useState(18);
-
   const g3p = Math.floor(Math.min(co2 / 3, nadph / 6, atp / 9));
 
   return (
-    <div className="lab-stack">
-      <div className="triple-sliders">
-        <label className="slider-field">
-          <span>CO2 molecules: {co2}</span>
-          <input type="range" min="3" max="18" step="3" value={co2} onChange={(event) => setCo2(Number(event.target.value))} />
-        </label>
-        <label className="slider-field">
-          <span>NADPH pool: {nadph}</span>
-          <input type="range" min="6" max="36" step="6" value={nadph} onChange={(event) => setNadph(Number(event.target.value))} />
-        </label>
-        <label className="slider-field">
-          <span>ATP pool: {atp}</span>
-          <input type="range" min="9" max="45" step="9" value={atp} onChange={(event) => setAtp(Number(event.target.value))} />
-        </label>
-      </div>
-
-      <div className="metrics-grid">
-        <LightMeter label="G3P formed" value={`${g3p}`} />
-        <LightMeter label="CO2 fixed" value={`${Math.min(co2, g3p * 3)}`} />
-        <LightMeter label="Cycle state" value={g3p > 0 ? 'Running' : 'Insufficient energy'} />
-      </div>
-
-      <article className="mini-note">
-        <strong>Calvin cycle checkpoint</strong>
-        <p>
-          For every 3 CO2, the cycle needs 6 NADPH and 9 ATP to net one G3P molecule.
-        </p>
-      </article>
-    </div>
+    <SceneScaffold
+      title="Calvin cycle"
+      subtitle="The dark reaction scene highlights carbon entering the leaf and sugar leaving after energy-rich molecules feed the cycle."
+      scene={
+        <PlantScene
+          sunlight={25}
+          water={45}
+          co2={co2 * 7}
+          oxygen={20}
+          sugar={g3p * 22}
+          leafTone={60 + g3p * 10}
+          modeLabel="Carbon fixation"
+          caption={`With ${co2} CO2, ${nadph} NADPH, and ${atp} ATP, the cycle currently nets ${g3p} G3P.`}
+        />
+      }
+      controls={
+        <div className="triple-sliders">
+          <label className="slider-field">
+            <span>CO2 molecules: {co2}</span>
+            <input type="range" min="3" max="18" step="3" value={co2} onChange={(event) => setCo2(Number(event.target.value))} />
+          </label>
+          <label className="slider-field">
+            <span>NADPH pool: {nadph}</span>
+            <input type="range" min="6" max="36" step="6" value={nadph} onChange={(event) => setNadph(Number(event.target.value))} />
+          </label>
+          <label className="slider-field">
+            <span>ATP pool: {atp}</span>
+            <input type="range" min="9" max="45" step="9" value={atp} onChange={(event) => setAtp(Number(event.target.value))} />
+          </label>
+        </div>
+      }
+      metrics={[
+        <Metric key="g3p" label="G3P formed" value={`${g3p}`} />,
+        <Metric key="fixed" label="CO2 fixed" value={`${Math.min(co2, g3p * 3)}`} />,
+        <Metric key="state" label="Cycle state" value={g3p > 0 ? 'Running' : 'Energy limited'} />,
+      ]}
+    />
   );
 }
 
@@ -200,48 +307,50 @@ function PathwayComparator() {
   const chosen = mode === 'c4' ? c4Efficiency : c3Efficiency;
 
   return (
-    <div className="lab-stack">
-      <div className="lab-toolbar">
-        <button className={`chip-button ${mode === 'c3' ? 'is-active' : ''}`} onClick={() => setMode('c3')}>
-          C3 pathway
-        </button>
-        <button className={`chip-button ${mode === 'c4' ? 'is-active' : ''}`} onClick={() => setMode('c4')}>
-          C4 pathway
-        </button>
-      </div>
-
-      <label className="slider-field">
-        <span>Temperature: {temperature} deg C</span>
-        <input
-          type="range"
-          min="10"
-          max="45"
-          value={temperature}
-          onChange={(event) => setTemperature(Number(event.target.value))}
+    <SceneScaffold
+      title={mode === 'c4' ? 'C4 pathway' : 'C3 pathway'}
+      subtitle="The plant scene changes how efficiently the leaf seems to process carbon under different temperature conditions."
+      scene={
+        <PlantScene
+          sunlight={58}
+          water={mode === 'c4' ? 62 : 46}
+          co2={mode === 'c4' ? 68 : 42}
+          oxygen={mode === 'c4' ? 24 : 42}
+          sugar={chosen * 0.7}
+          leafTone={50 + chosen / 2}
+          modeLabel={mode.toUpperCase()}
+          caption={`At ${temperature} deg C, the selected pathway is working at about ${formatPercent(chosen)} efficiency.`}
         />
-      </label>
+      }
+      controls={
+        <div className="lab-stack">
+          <div className="lab-toolbar">
+            <button className={`chip-button ${mode === 'c3' ? 'is-active' : ''}`} onClick={() => setMode('c3')}>
+              C3 pathway
+            </button>
+            <button className={`chip-button ${mode === 'c4' ? 'is-active' : ''}`} onClick={() => setMode('c4')}>
+              C4 pathway
+            </button>
+          </div>
 
-      <div className="comparison-row">
-        <article className={`compare-card ${mode === 'c3' ? 'is-active' : ''}`}>
-          <span>C3</span>
-          <strong>{formatPercent(c3Efficiency)}</strong>
-          <small>Cooler conditions, more photorespiration risk</small>
-        </article>
-        <article className={`compare-card ${mode === 'c4' ? 'is-active' : ''}`}>
-          <span>C4</span>
-          <strong>{formatPercent(c4Efficiency)}</strong>
-          <small>Warmer conditions, Kranz anatomy advantage</small>
-        </article>
-      </div>
-
-      <article className="mini-note">
-        <strong>{mode.toUpperCase()} selected</strong>
-        <p>
-          Estimated efficiency at {temperature} deg C is {formatPercent(chosen)} based on the
-          pathway&apos;s temperature preference.
-        </p>
-      </article>
-    </div>
+          <label className="slider-field">
+            <span>Temperature: {temperature} deg C</span>
+            <input
+              type="range"
+              min="10"
+              max="45"
+              value={temperature}
+              onChange={(event) => setTemperature(Number(event.target.value))}
+            />
+          </label>
+        </div>
+      }
+      metrics={[
+        <Metric key="c3" label="C3 efficiency" value={formatPercent(c3Efficiency)} />,
+        <Metric key="c4" label="C4 efficiency" value={formatPercent(c4Efficiency)} />,
+        <Metric key="selected" label="Selected" value={mode.toUpperCase()} />,
+      ]}
+    />
   );
 }
 
@@ -267,32 +376,47 @@ function LimitingFactorLab() {
   );
 
   return (
-    <div className="lab-stack">
-      <div className="triple-sliders">
-        <label className="slider-field">
-          <span>Light intensity: {light}</span>
-          <input type="range" min="10" max="100" value={light} onChange={(event) => setLight(Number(event.target.value))} />
-        </label>
-        <label className="slider-field">
-          <span>CO2 availability: {co2}</span>
-          <input type="range" min="10" max="100" value={co2} onChange={(event) => setCo2(Number(event.target.value))} />
-        </label>
-        <label className="slider-field">
-          <span>Temperature: {temperature} deg C</span>
-          <input type="range" min="10" max="45" value={temperature} onChange={(event) => setTemperature(Number(event.target.value))} />
-        </label>
-        <label className="slider-field">
-          <span>Water supply: {water}</span>
-          <input type="range" min="10" max="100" value={water} onChange={(event) => setWater(Number(event.target.value))} />
-        </label>
-      </div>
-
-      <div className="metrics-grid">
-        <LightMeter label="Photosynthetic output" value={`${output}/100`} />
-        <LightMeter label="Limiting factor" value={limitingFactor.name} />
-        <LightMeter label="Blackman view" value={limitingFactor.value < 40 ? 'Strongly limited' : 'Partially limited'} />
-      </div>
-    </div>
+    <SceneScaffold
+      title="Limiting factors"
+      subtitle="The scene visualizes plant health and gas exchange while the weakest input becomes the bottleneck."
+      scene={
+        <PlantScene
+          sunlight={light}
+          water={water}
+          co2={co2}
+          oxygen={output * 0.45}
+          sugar={output * 0.55}
+          leafTone={output}
+          modeLabel="Whole plant response"
+          caption={`${limitingFactor.name} is currently the main limiting factor, so visible plant output stays constrained.`}
+        />
+      }
+      controls={
+        <div className="triple-sliders">
+          <label className="slider-field">
+            <span>Light intensity: {light}</span>
+            <input type="range" min="10" max="100" value={light} onChange={(event) => setLight(Number(event.target.value))} />
+          </label>
+          <label className="slider-field">
+            <span>CO2 availability: {co2}</span>
+            <input type="range" min="10" max="100" value={co2} onChange={(event) => setCo2(Number(event.target.value))} />
+          </label>
+          <label className="slider-field">
+            <span>Temperature: {temperature} deg C</span>
+            <input type="range" min="10" max="45" value={temperature} onChange={(event) => setTemperature(Number(event.target.value))} />
+          </label>
+          <label className="slider-field">
+            <span>Water supply: {water}</span>
+            <input type="range" min="10" max="100" value={water} onChange={(event) => setWater(Number(event.target.value))} />
+          </label>
+        </div>
+      }
+      metrics={[
+        <Metric key="output" label="Photosynthetic output" value={`${output}/100`} />,
+        <Metric key="limit" label="Limiting factor" value={limitingFactor.name} />,
+        <Metric key="status" label="Plant state" value={output > 65 ? 'Healthy' : output > 40 ? 'Moderate' : 'Stressed'} />,
+      ]}
+    />
   );
 }
 
@@ -324,8 +448,8 @@ export default function PhotosynthesisLab({ chapter, topic }) {
           <p className="eyebrow">Chapter 12 Interactive Lab</p>
           <h2>{topic.title}</h2>
           <p>
-            Explore the process, tune the variables, and see how the selected photosynthesis
-            concept behaves as a model instead of a static note.
+            The plant is now part of the simulator itself, so light capture, water flow,
+            gas exchange, and sugar output are visible while you adjust the topic controls.
           </p>
         </div>
         <div className="visualizer-badge">
@@ -334,7 +458,7 @@ export default function PhotosynthesisLab({ chapter, topic }) {
         </div>
       </article>
 
-      <div className="visualizer-grid photosynthesis-layout">
+      <div className="visualizer-grid photosynthesis-layout scene-layout">
         <article className="panel-card">
           <p className="eyebrow">Topic Scope</p>
           <h3>{topic.title}</h3>
